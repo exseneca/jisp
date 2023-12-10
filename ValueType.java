@@ -1,5 +1,6 @@
 enum ValueType {
     Symbol,
-    Number
+    Number,
+    List
 }
                

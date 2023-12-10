@@ -1,7 +1,7 @@
 // IValue can be a symbol or a number
 import java.util.LinkedList;
 
-public class jist {
+public class jist implements IValue {
     static class JistItem {
         JistItem rest;
         IValue value;
@@ -36,9 +36,9 @@ public class jist {
         if(this.head != null) {
             this.head.print();
         }
-        System.out.print(")\n");
+        System.out.print(")");
     }
-
+    // TODO: we should take ANY value as b, not just a list
     public static jist cons(IValue a, jist b) {
        return new jist(new JistItem(a, b.head));
     }
@@ -50,5 +50,11 @@ public class jist {
             return new jist(a.head.rest);
         }
         return a;
+    }
+    public boolean isEmpty() {
+        return head == null;
+    }
+    public ValueType getType() {
+        return ValueType.List;
     }
 }
