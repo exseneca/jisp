@@ -1,0 +1,5 @@
+enum ValueType {
+    Symbol,
+    Number
+}
+               
