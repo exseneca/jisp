@@ -9,6 +9,9 @@ public class jist implements IValue {
             this.value = a;
             this.rest = null;
         }
+        public boolean isList() {
+            value.type == ValueType.List;
+        }
         public JistItem(IValue a, JistItem b) {
             this.value = a;
             this.rest = b;
@@ -40,7 +43,9 @@ public class jist implements IValue {
     }
     // TODO: we should take ANY value as b, not just a list
     public static jist cons(IValue a, jist b) {
-       return new jist(new JistItem(a, b.head));
+        return new jist(new JistItem(a, b.head));
+    }
+
     }
     public static IValue car(jist a) {
         return a.head.value;
@@ -56,5 +61,12 @@ public class jist implements IValue {
     }
     public ValueType getType() {
         return ValueType.List;
+    }
+    private int count(jist j) {
+        if(j.isEmpty()) return 0;
+        return 1 + this.count(this.cdr(j));
+    }
+    public int count() {
+        return count(this);
     }
 }

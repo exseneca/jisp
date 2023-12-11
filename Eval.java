@@ -56,6 +56,11 @@ public class Eval {
             }
             return applyDivide(args);    
         }
+        else if (funName.equals("def")) {
+            if(args.count() != 2) {
+                System.out.println("Def needs two args!");
+            }
+        }
         else {
             System.out.printf("Unknown function %s\n", funName);
             return null;
