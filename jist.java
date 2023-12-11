@@ -1,72 +1,55 @@
-// IValue can be a symbol or a number
 import java.util.LinkedList;
 
 public class jist implements IValue {
-    static class JistItem {
-        JistItem rest;
-        IValue value;
-        public JistItem(IValue a) {
-            this.value = a;
-            this.rest = null;
-        }
-        public boolean isList() {
-            value.type == ValueType.List;
-        }
-        public JistItem(IValue a, JistItem b) {
-            this.value = a;
-            this.rest = b;
-        }
-        public void print() {
-            value.print();
-            if(this.rest != null) {
-                System.out.print(" ");
-                this.rest.print();
-            }
-        }
 
-    }
-    JistItem head;
-
-    public jist(JistItem head) {
+    IValue head;
+    IValue rest;
+    public jist(IValue head) {
         this.head = head;
+        this.rest = null;
+    }
+    public jist(IValue head, IValue rest) {
+        this.head = head;
+        this.rest = rest;
     }
     public static jist empty() {
         return new jist(null);
     }
+    public boolean isEmpty() {
+        return head == null;
+    }
 
     public void print() {
-        System.out.print("(");
         if(this.head != null) {
             this.head.print();
         }
-        System.out.print(")");
+        if(this.rest != null) {
+            this.rest.print();
+        }
     }
     // TODO: we should take ANY value as b, not just a list
-    public static jist cons(IValue a, jist b) {
-        return new jist(new JistItem(a, b.head));
-    }
-
+    public static jist cons(IValue a, IValue b) {
+        return new jist(a, b);
     }
     public static IValue car(jist a) {
-        return a.head.value;
+        return a.head;
     }
-    public static jist cdr(jist a) {
-        if(a.head != null) {
-            return new jist(a.head.rest);
-        }
-        return a;
-    }
-    public boolean isEmpty() {
-        return head == null;
+    public static IValue cdr(jist a) {
+        return a.rest;
     }
     public ValueType getType() {
         return ValueType.List;
     }
-    private int count(jist j) {
-        if(j.isEmpty()) return 0;
-        return 1 + this.count(this.cdr(j));
+
+    public static int count(IValue j) {
+        if(((jist)j).isEmpty()) {
+            return 0;
+        } else if (j.getType() != ValueType.List) {
+            return 1;
+        }
+         else {
+             return (1 + jist.count(jist.cdr((jist)j)));
+        }
     }
-    public int count() {
-        return count(this);
-    }
+   
 }

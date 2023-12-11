@@ -51,9 +51,12 @@ public class repl {
         }
         Parser parser = new Parser(tokens);
         jist program = parser.parse();
+        // TODO: Need a tree printer now.
         System.out.print("Program: ");
+        System.out.print("(")
         program.print();
         System.out.print("\n");
+        System.out.printf("%d forms\n", jist.count(program));
         IValue out = Eval.apply(program);
         if(out.getType() == ValueType.Number) {
             System.out.printf("Final number %f\n", ((NumberValue)out).getValue());

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class Eval {
     public static IValue apply(jist form) {
         SymbolValue fun = (SymbolValue)jist.car(form);
-        jist args = jist.cdr(form);
+        jist args = (jist)jist.cdr(form);
         jist evalledArgs = evalArgs(args);
         // TODO: Apply primitives
         return apply(fun, evalledArgs);
@@ -57,9 +57,11 @@ public class Eval {
             return applyDivide(args);    
         }
         else if (funName.equals("def")) {
-            if(args.count() != 2) {
+            if(jist.count(args) != 2) {
                 System.out.println("Def needs two args!");
+                return null;
             }
+            return null;
         }
         else {
             System.out.printf("Unknown function %s\n", funName);
@@ -70,7 +72,7 @@ public class Eval {
     public static IValue applyPlus(jist args) {
         if(args.isEmpty()) return new NumberValue(0);
         IValue first = jist.car(args);
-        jist rest = jist.cdr(args);
+        jist rest = (jist)jist.cdr((jist)args);
         if(first.getType() != ValueType.Number) System.out.println("Non number type provided to plus!");
         return new NumberValue(((NumberValue)first).getValue()
                                + ((NumberValue)applyPlus(rest)).getValue()); 
@@ -82,7 +84,7 @@ public class Eval {
     public static IValue applySubtract(jist args) {
         if(args.isEmpty()) return new NumberValue(0);
         IValue first = jist.car(args);
-        jist rest = jist.cdr(args);
+        jist rest = (jist)jist.cdr(args);
         if(first.getType() != ValueType.Number) System.out.println("Non number type provided to plus!");
         return new NumberValue(((NumberValue)first).getValue()
                                - ((NumberValue)applySubtract(rest)).getValue()); 
@@ -94,7 +96,7 @@ public class Eval {
     public static IValue applyMultiply(jist args) {
         if(args.isEmpty()) return new NumberValue(1);
         IValue first = jist.car(args);
-        jist rest = jist.cdr(args);
+        jist rest = (jist)jist.cdr(args);
         if(first.getType() != ValueType.Number) System.out.println("Non number type provided to plus!");
         return new NumberValue(((NumberValue)first).getValue()
                                * ((NumberValue)applyMultiply(rest)).getValue()); 
@@ -106,7 +108,7 @@ public class Eval {
     public static IValue applyDivide(jist args) {
         if(args.isEmpty()) return new NumberValue(1);
         IValue first = jist.car(args);
-        jist rest = jist.cdr(args);
+        jist rest = (jist)jist.cdr(args);
         if(first.getType() != ValueType.Number) System.out.println("Non number type provided to plus!");
         return new NumberValue(((NumberValue)first).getValue()
                                / ((NumberValue)applyDivide(rest)).getValue()); 
@@ -119,7 +121,7 @@ public class Eval {
     public static jist evalArgs(jist form) {
         if(form.isEmpty()) return form;
         IValue arg = eval(jist.car(form));
-        return jist.cons(arg, evalArgs(jist.cdr(form)));
+        return (jist)jist.cons(arg, evalArgs((jist)jist.cdr(form)));
     }
     public static IValue eval(IValue value) {
         switch (value.getType()) {
