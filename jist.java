@@ -49,9 +49,9 @@ public class jist implements IValue {
     private static void printRest(jist j) {
         boolean more = j.rest != null && j.rest.getType() == ValueType.List && !((jist)j.rest).isEmpty();
         
-        if(j.head.getType() == ValueType.List) {
+        if(j.head != null && j.head.getType() == ValueType.List) {
             jist.print((jist)j.head);
-        } else {
+        } else if (j.head != null) {
             j.head.print();
         }
         if(more) {

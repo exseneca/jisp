@@ -17,18 +17,11 @@ public class Parser {
     }
     public jist parseForm() throws Exception {
         consume(TokenType.LeftParen, "Expecting left paren.");
-        IValue fun = parseFun();
         jist args = parseArgs();
         consume(TokenType.RightParen, "Expecting right paren");
-        return jist.cons(fun, args);
+        return args;
     }
-    public SymbolValue parseFun() throws Exception {
-        Token token = advance();
-        if(token.type != TokenType.Symbol) {
-            throw new Exception("Not callable.");
-        }
-        return (SymbolValue)token.getValue();
-    }
+    // TODO: rename.
     public jist parseArgs() throws Exception {
         IValue left;
         if(peek().type == TokenType.RightParen) {

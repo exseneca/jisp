@@ -24,12 +24,19 @@ import java.util.ArrayList;
 
 public class Eval {
     public static IValue apply(jist form) {
-        SymbolValue fun = (SymbolValue)jist.car(form);
+        IValue fun = eval((SymbolValue)jist.car(form));
+        if(fun.getType() != ValueType.Symbol) {
+            // TODO: Better error reporting. Is should ideally have the raw text.
+            System.out.println("Can't apply non-symbol!");
+            // print GOT [TYPE] = fun.print())
+        }
         jist args = (jist)jist.cdr(form);
         jist evalledArgs = evalArgs(args);
         // TODO: Apply primitives
-        return apply(fun, evalledArgs);
+        return apply((SymbolValue)fun, evalledArgs);
     }
+    // TODO: This case statement is a bit messy. Can we seperate
+    // validation.
     public static IValue apply(SymbolValue fun, jist args) {
         String funName = fun.getName();
         if(funName.equals("+")) {

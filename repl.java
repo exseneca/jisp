@@ -22,7 +22,12 @@ public class repl {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break;
-            replLine(line);
+            try {
+                replLine(line);
+            }
+            catch (Exception e) {
+                System.out.printf("\nException: %s\n", e.getMessage());
+            }
         }
     }
     public static void replLine(String line) {
