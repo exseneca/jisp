@@ -20,12 +20,7 @@ public class jist implements IValue {
     }
 
     public void print() {
-        if(this.head != null) {
-            this.head.print();
-        }
-        if(this.rest != null) {
-            this.rest.print();
-        }
+        jist.print(this);
     }
     // TODO: we should take ANY value as b, not just a list
     public static jist cons(IValue a, IValue b) {
@@ -50,6 +45,32 @@ public class jist implements IValue {
          else {
              return (1 + jist.count(jist.cdr((jist)j)));
         }
+    }
+    private static void printRest(jist j) {
+        boolean more = j.rest != null && j.rest.getType() == ValueType.List && !((jist)j.rest).isEmpty();
+        
+        if(j.head.getType() == ValueType.List) {
+            jist.print((jist)j.head);
+        } else {
+            j.head.print();
+        }
+        if(more) {
+            System.out.print(" ");
+            printRest((jist)j.rest);
+        }
+        else if (j.rest != null && j.rest.getType() == ValueType.List) {
+            return;
+        }
+        else {
+            System.out.print(" . ");
+            j.rest.print();
+        }
+    }
+    public static void print(jist j) {
+        System.out.print("(");
+        printRest(j);
+        System.out.print(")");
+        
     }
    
 }

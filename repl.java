@@ -53,7 +53,6 @@ public class repl {
         jist program = parser.parse();
         // TODO: Need a tree printer now.
         System.out.print("Program: ");
-        System.out.print("(")
         program.print();
         System.out.print("\n");
         System.out.printf("%d forms\n", jist.count(program));
