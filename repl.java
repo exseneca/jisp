@@ -55,17 +55,33 @@ public class repl {
             }
         }
         Parser parser = new Parser(tokens);
-        jist program = parser.parse();
+        IValue program = parser.parse();
+        IValue out;
+        if(program.getType() == ValueType.List) {
         // TODO: Need a tree printer now.
         System.out.print("Program: ");
         program.print();
         System.out.print("\n");
         System.out.printf("%d forms\n", jist.count(program));
-        IValue out = Eval.apply(program);
-        if(out.getType() == ValueType.Number) {
-            System.out.printf("Final number %f\n", ((NumberValue)out).getValue());
+        
+        out = Eval.apply((jist)program);
         } else {
+            out = Eval.eval((jist)program);
+        }
+        if(out != null && out.getType() == ValueType.Number) {
+            System.out.printf("Final number %f\n", ((NumberValue)out).getValue());
+        }
+        else if (out == null) {
+            System.out.println("nil");
+        }
+        else {
             System.out.println("Something went wrong");
          }
+        //double one = ((NumberValue)Eval.envLookup(Eval.globalEnv, new SymbolValue("one"))).getValue();
+        //System.out.printf("one = %f\n", one);
+        //Eval.addToGlobal(new SymbolValue("two"), new NumberValue(2.0));
+        //Eval.addToGlobal(new SymbolValue("three"), new NumberValue(3.0));
+        //double two = ((NumberValue)Eval.envLookup(Eval.globalEnv, new SymbolValue("two"))).getValue();
+        //System.out.printf("two = %f\n", two);
     }
 }

@@ -6,9 +6,15 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
-    public jist parse() {
+    public IValue parse() {
         try {
-            return parseForm();
+            if(peek().type == TokenType.LeftParen) {
+                return parseForm();
+            }
+            else {
+                // TODO: should deal with the empty case.
+                return advance().value;
+            }
         }
         catch(Exception e) {
             System.out.printf("Parse ERROR: %s\n", e.getMessage());
