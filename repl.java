@@ -66,7 +66,7 @@ public class repl {
         
         out = Eval.apply((jist)program);
         } else {
-            out = Eval.eval((jist)program);
+            out = Eval.eval(program);
         }
         if(out != null && out.getType() == ValueType.Number) {
             System.out.printf("Final number %f\n", ((NumberValue)out).getValue());
