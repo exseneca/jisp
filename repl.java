@@ -63,7 +63,6 @@ public class repl {
         program.print();
         System.out.print("\n");
         System.out.printf("%d forms\n", jist.count(program));
-        
         out = Eval.apply((jist)program);
         } else {
             out = Eval.eval(program);

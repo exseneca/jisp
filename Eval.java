@@ -95,6 +95,18 @@ public class Eval {
             addToGlobal(name, evalledValue);
             return null;
         }
+        else if (funName.equals("println")) {
+         
+            if(jist.count(args) > 1) {
+                // TODO: println takes multiple and strs them. Maybe once
+                // str exists;
+                System.out.println("println takes only one arg");
+            }
+            IValue value = eval(jist.car(args));
+            value.print();
+            System.out.print("\n");
+            return null;
+        }
         else {
             System.out.printf("Unknown function %s\n", funName);
             return null;
@@ -158,7 +170,7 @@ public class Eval {
     public static IValue evalSymbol(SymbolValue value) {
         if(value.getName().equals("*") || value.getName().equals("+") ||
            value.getName().equals("-") || value.getName().equals("/") ||
-           value.getName().equals("def")) {
+           value.getName().equals("def") || value.getName().equals("println")) {
             return value;
         }
         return envLookup(globalEnv, value);
