@@ -50,7 +50,11 @@ public class Eval {
             System.out.println("Can't apply non-symbol!");
             // print GOT [TYPE] = fun.print())
         }
+        System.out.println(">>> about to get args");
         jist args = (jist)jist.cdr(form);
+        System.out.print(">>> args are ");
+        args.print();
+        System.out.println("");
         //        jist evalledArgs = evalArgs(args);
         // TODO: Apply primitives
         return apply((SymbolValue)fun, args);
@@ -83,6 +87,13 @@ public class Eval {
             }
                 return applyDivide(evalArgs(args));    
         }
+        else if (funName.equals("=")) {
+            if(jist.count(args) != 2) {
+                System.out.println("Equal takes two args!!");
+                return null;
+            }
+            return applyEqual(evalArgs(args));
+        }
         else if (funName.equals("def")) {
             
             if(jist.count(args) != 2) {
@@ -101,11 +112,27 @@ public class Eval {
                 // TODO: println takes multiple and strs them. Maybe once
                 // str exists;
                 System.out.println("println takes only one arg");
+                return null;
             }
             IValue value = eval(jist.car(args));
             value.print();
             System.out.print("\n");
             return null;
+        }
+        else if (funName.equals("if")) {
+            if(jist.count(args) != 3) {
+                System.out.println("if takes three args");
+                return null; // Should we return error?
+            }
+            IValue arg1 = jist.car(args);
+            IValue arg2 = jist.car((jist)jist.cdr(args));
+            IValue arg3 = jist.car((jist)jist.cdr((jist)jist.cdr(args)));
+            if(isTruthy(eval(arg1))) {
+                    return eval(arg2);
+                } else {
+                    return eval(arg3);
+                }
+            
         }
         else {
             System.out.printf("Unknown function %s\n", funName);
@@ -161,6 +188,25 @@ public class Eval {
            // It could require some major refactorings.
         
     }
+    public static IValue applyEqual(jist args) {
+        // TODO: make recursive
+        IValue first = jist.car(args);
+        IValue second = jist.car((jist)(jist.cdr(args)));
+        if(first.getType() != second.getType()) {
+            System.out.println("Equal must have same type args!");
+            return null;
+        }
+        if(first.getType() == ValueType.Number) {
+            boolean eq = ((NumberValue)first).getValue() == ((NumberValue)second).getValue();
+            return new BoolValue(eq);
+        }
+        if(first.getType() == ValueType.Bool) {
+            boolean eq = ((BoolValue)first).getValue() == ((BoolValue)second).getValue();
+            return new BoolValue(eq);
+        }
+        return new BoolValue(false);
+        // TODO: Need to equal lists? I think first we need quote values
+    }
      
     public static jist evalArgs(jist form) {
         if(form.isEmpty()) return form;
@@ -170,7 +216,8 @@ public class Eval {
     public static IValue evalSymbol(SymbolValue value) {
         if(value.getName().equals("*") || value.getName().equals("+") ||
            value.getName().equals("-") || value.getName().equals("/") ||
-           value.getName().equals("def") || value.getName().equals("println")) {
+           value.getName().equals("def") || value.getName().equals("println") ||
+           value.getName().equals("if") || value.getName().equals("=")) {
             return value;
         }
         return envLookup(globalEnv, value);
@@ -179,9 +226,23 @@ public class Eval {
         if(value == null) return null;
         switch (value.getType()) {
         case Symbol: return evalSymbol((SymbolValue)value);
-        case Number: return value;
+        case Number:
+        case Bool: return value;
         case List: return apply((jist)value);
         default: return null;
         }
+    }
+
+    public static boolean isTruthy(IValue value) {
+        if(value.getType() == ValueType.Bool)
+        {
+            return ((BoolValue)value).getValue();
+        }
+        if(value.getType() == ValueType.List)
+        {
+            return !((jist)value).isEmpty();
+        }
+        return true;
+         
     }
 }

@@ -45,7 +45,14 @@ public class Scanner {
     }
 private void symbol() {
     while (isAlphaNumeric(peek())) advance();
-    addToken(TokenType.Symbol, new SymbolValue(source.substring(start, current)));
+    if(source.substring(start, current).equals("true")) {
+        addToken(TokenType.Bool, new BoolValue(true));
+    } else if (source.substring(start, current).equals("false")){
+        addToken(TokenType.Bool, new BoolValue(false));
+    } else {
+        addToken(TokenType.Symbol, new SymbolValue(source.substring(start, current)));
+    }
+
 }
 
      private void number() {

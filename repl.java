@@ -30,6 +30,9 @@ public class repl {
             }
         }
     }
+    public static void printNewLine() {
+        System.out.print("\n");
+    }
     public static void replLine(String line) {
         //jist j = jist.empty();
         //jist k = jist.cons(new NumberValue(3), j);
@@ -50,8 +53,9 @@ public class repl {
             case LeftParen: System.out.print("LEFT_PAREN\n"); break;
             case RightParen: System.out.print("RIGHT_PAREN\n"); break;
             case EOF: System.out.print("EOF\n"); break;
-            case Symbol: System.out.print("SYMBOL: "); token.value.print(); System.out.print("\n"); break;
-            case Number: System.out.print("NUMBER: "); token.value.print(); System.out.print("\n"); break;
+            case Bool: System.out.print("BOOL: "); token.value.print(); printNewLine(); break;
+            case Symbol: System.out.print("SYMBOL: "); token.value.print(); printNewLine(); break;
+            case Number: System.out.print("NUMBER: "); token.value.print(); printNewLine(); break;
             }
         }
         Parser parser = new Parser(tokens);
@@ -69,6 +73,9 @@ public class repl {
         }
         if(out != null && out.getType() == ValueType.Number) {
             System.out.printf("Final number %f\n", ((NumberValue)out).getValue());
+        } else if (out != null && out.getType() == ValueType.Bool) {
+            out.print();
+            printNewLine();
         }
         else if (out == null) {
             System.out.println("nil");
