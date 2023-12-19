@@ -44,10 +44,15 @@ public class Eval {
         
     }
     public static IValue apply(jist form, jist env) {
+        form.print();
+        jist.car(form);
+        System.out.println("About to eval fun!");
         IValue fun = eval((SymbolValue)jist.car(form), env);
-
+        System.out.println("Fun evalled");
+        fun.print();
+        System.out.print("\n");
         if(fun.getType() != ValueType.Symbol &&
-           fun.getType() != ValueType.Lambda) {
+           fun.getType() != ValueType.Procedure) {
             // TODO: Better error reporting. Is should ideally have the raw text.
             System.out.println("Must be symbol or lambda to apply!");
             // print GOT [TYPE] = fun.print())
@@ -59,18 +64,28 @@ public class Eval {
         System.out.println("");
         //        jist evalledArgs = evalArgs(args);
         // TODO: Apply primitives
-        if (fun.getType() == ValueType.Lambda) {
-            return applyLambda((LambdaValue)fun, args, env);
+        if (fun.getType() == ValueType.Procedure) {
+            return applyProcedure((ProcedureValue)fun, args, env);
         } else {            
             return apply((SymbolValue)fun, args, env);
         }
     }
-    public static IValue applyLambda(LambdaValue fun, jist args, jist env) {
-        // How do we apply a lambda?
-        // Should the lambda be parsed into a lambda type in the
-        // parser.. yes of course.
-        // TODO bind args to env
-        // execute body in new env.
+    public static jist addNamesAndValuesToEnv(jist names, jist values, jist env) {
+        if(names.isEmpty()) {
+            return env;
+        }
+        return addToEnv(addNamesAndValuesToEnv((jist)jist.cdr(names), (jist)jist.cdr(values), env),
+                        (SymbolValue)jist.car(names),
+                        jist.car(values));
+            
+    }
+    public static IValue applyProcedure(ProcedureValue fun, jist args, jist env) {
+        if(jist.count(fun.params()) != jist.count(args)) {
+            System.out.println("Unequal args!!");
+            return null;
+        }
+        jist applicationEnv = addNamesAndValuesToEnv(fun.params(), args, env);
+        return eval(fun.body(), applicationEnv);
     }
     // TODO: This case statement is a bit messy. Can we seperate
     // validation.
@@ -80,32 +95,37 @@ public class Eval {
             if(args.isEmpty()) {
                 System.out.println("No args to plus!");
             }
-            return applyPlus(evalArgs(args));    
+            System.out.println("Applying +");
+            args.print();
+            jist evalledArgs = evalArgs(args, env);
+            System.out.println("Args evalled");
+            evalledArgs.print();
+            return applyPlus(evalledArgs);
         }
         else if(funName.equals("-")) {
                 if(args.isEmpty()) {
                 System.out.println("No args to subtract!");
             }
-                return applySubtract(evalArgs(args));    
+                return applySubtract(evalArgs(args, env));    
         }
         else if(funName.equals("*")) {
                 if(args.isEmpty()) {
                     System.out.println("No args to multiply!");
             }
-                return applyMultiply(evalArgs(args));    
+                return applyMultiply(evalArgs(args, env));    
         }
         else if(funName.equals("/")) {
                 if(args.isEmpty()) {
                     System.out.println("No args to divide!");
             }
-                return applyDivide(evalArgs(args));    
+                return applyDivide(evalArgs(args, env));    
         }
         else if (funName.equals("=")) {
             if(jist.count(args) != 2) {
                 System.out.println("Equal takes two args!!");
                 return null;
             }
-            return applyEqual(evalArgs(args));
+            return applyEqual(evalArgs(args, env));
         }
         else if (funName.equals("def")) {
             
@@ -115,7 +135,7 @@ public class Eval {
             }
             SymbolValue name = (SymbolValue)jist.car(args);
             IValue value = jist.car((jist)jist.cdr(args));
-            IValue evalledValue = eval(value);
+            IValue evalledValue = eval(value, env);
             addToGlobal(name, evalledValue);
             return null;
         }
@@ -127,7 +147,7 @@ public class Eval {
                 System.out.println("println takes only one arg");
                 return null;
             }
-            IValue value = eval(jist.car(args));
+            IValue value = eval(jist.car(args), env);
             value.print();
             System.out.print("\n");
             return null;
@@ -140,22 +160,34 @@ public class Eval {
             IValue arg1 = jist.car(args);
             IValue arg2 = jist.car((jist)jist.cdr(args));
             IValue arg3 = jist.car((jist)jist.cdr((jist)jist.cdr(args)));
-            if(isTruthy(eval(arg1))) {
-                    return eval(arg2);
+            if(isTruthy(eval(arg1, env))) {
+                return eval(arg2, env);
                 } else {
-                    return eval(arg3);
+                return eval(arg3, env);
                 }
             
         }
-        else if (funName.equals("lambda") {
-                if(jist.count(args != 2)) {
-                    System.out.println("lambda needs three args (lambda (params) body)");
+        else if (funName.equals("defn")) {
+            if(jist.count(args) != 3) {
+                    System.out.println("def needs three args (lambda (params) body)");
                 }
-                jist params = jist.car(args);
-                jist body = jist.cadr(args);
-                jist env = globalEnv(args);
-                return new LambdaValue(body, params, env); // TODO: now what do we do with the env??
-            }
+                SymbolValue name = (SymbolValue)jist.car(args);
+                jist params = (jist)jist.cadr(args);
+                jist body = (jist)jist.caddr(args);
+                ProcedureValue proc = new ProcedureValue(body, params, env);
+                addToGlobal(name, proc);
+                return null;
+        }
+        else if (funName.equals("lambda")) {
+            if(jist.count(args) != 2) {
+                    System.out.println("lambda needs three args (lambda (params) body)");
+                    return null;
+                }
+            jist params = (jist)jist.car(args);
+            jist body = (jist)jist.cadr(args);
+            jist closureEnv = env;
+            return new ProcedureValue(body, params, closureEnv); // TODO: now what do we do with the env??
+         }
         else {
             System.out.printf("Unknown function %s\n", funName);
             return null;
@@ -233,7 +265,7 @@ public class Eval {
     public static jist evalArgs(jist form, jist env) {
         if(form.isEmpty()) return form;
         IValue arg = eval(jist.car(form), env);
-        return (jist)jist.cons(arg, evalArgs((jist)jist.cdr(form)));
+        return (jist)jist.cons(arg, evalArgs((jist)jist.cdr(form), env));
         // TODO: Do we return the env here???
         // Exactly what happens to the environemnt???
     }
@@ -241,19 +273,30 @@ public class Eval {
         if(value.getName().equals("*") || value.getName().equals("+") ||
            value.getName().equals("-") || value.getName().equals("/") ||
            value.getName().equals("def") || value.getName().equals("println") ||
-           value.getName().equals("if") || value.getName().equals("=")) {
+           value.getName().equals("if") || value.getName().equals("=") ||
+           value.getName().equals("defn")) {
             return value;
         }
-        return envLookup(env, value);
+        if (env.isEmpty()) {
+            System.out.println("Trying to look into an empty env!");
+            return null;
+        }
+        IValue lookup = envLookup(env,value);
+        if(lookup == null) {
+            System.out.println("Couldn't find symbol");
+            value.print();
+        }
+        return lookup;
     }
     public static IValue eval(IValue value, jist env) {
+        System.out.println("Stuck in eval");
         if(value == null) return null;
         switch (value.getType()) {
         case Symbol: return evalSymbol((SymbolValue)value, env);
         case Number:
+        case Procedure: return value;
         case Bool: return value;
-        case List: return apply((jist)value);
-        case Lambda: return value;
+        case List: return apply((jist)value, env);
         default: return null;
         }
     }

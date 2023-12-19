@@ -67,9 +67,9 @@ public class repl {
         program.print();
         System.out.print("\n");
         System.out.printf("%d forms\n", jist.count(program));
-        out = Eval.apply((jist)program);
+        out = Eval.apply((jist)program, Eval.globalEnv);
         } else {
-            out = Eval.eval(program);
+            out = Eval.eval(program, Eval.globalEnv);
         }
         if(out != null && out.getType() == ValueType.Number) {
             System.out.printf("Final number %f\n", ((NumberValue)out).getValue());
