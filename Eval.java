@@ -43,11 +43,13 @@ public class Eval {
         return envLookup((jist)jist.cdr(env), value);
         
     }
-    public static IValue apply(jist form) {
-        IValue fun = eval((SymbolValue)jist.car(form));
-        if(fun.getType() != ValueType.Symbol) {
+    public static IValue apply(jist form, jist env) {
+        IValue fun = eval((SymbolValue)jist.car(form), env);
+
+        if(fun.getType() != ValueType.Symbol &&
+           fun.getType() != ValueType.Lambda) {
             // TODO: Better error reporting. Is should ideally have the raw text.
-            System.out.println("Can't apply non-symbol!");
+            System.out.println("Must be symbol or lambda to apply!");
             // print GOT [TYPE] = fun.print())
         }
         System.out.println(">>> about to get args");
@@ -57,11 +59,22 @@ public class Eval {
         System.out.println("");
         //        jist evalledArgs = evalArgs(args);
         // TODO: Apply primitives
-        return apply((SymbolValue)fun, args);
+        if (fun.getType() == ValueType.Lambda) {
+            return applyLambda((LambdaValue)fun, args, env);
+        } else {            
+            return apply((SymbolValue)fun, args, env);
+        }
+    }
+    public static IValue applyLambda(LambdaValue fun, jist args, jist env) {
+        // How do we apply a lambda?
+        // Should the lambda be parsed into a lambda type in the
+        // parser.. yes of course.
+        // TODO bind args to env
+        // execute body in new env.
     }
     // TODO: This case statement is a bit messy. Can we seperate
     // validation.
-    public static IValue apply(SymbolValue fun, jist args) {
+    public static IValue apply(SymbolValue fun, jist args, jist env) {
         String funName = fun.getName();
         if(funName.equals("+")) {
             if(args.isEmpty()) {
@@ -134,6 +147,15 @@ public class Eval {
                 }
             
         }
+        else if (funName.equals("lambda") {
+                if(jist.count(args != 2)) {
+                    System.out.println("lambda needs three args (lambda (params) body)");
+                }
+                jist params = jist.car(args);
+                jist body = jist.cadr(args);
+                jist env = globalEnv(args);
+                return new LambdaValue(body, params, env); // TODO: now what do we do with the env??
+            }
         else {
             System.out.printf("Unknown function %s\n", funName);
             return null;
@@ -208,27 +230,30 @@ public class Eval {
         // TODO: Need to equal lists? I think first we need quote values
     }
      
-    public static jist evalArgs(jist form) {
+    public static jist evalArgs(jist form, jist env) {
         if(form.isEmpty()) return form;
-        IValue arg = eval(jist.car(form));
+        IValue arg = eval(jist.car(form), env);
         return (jist)jist.cons(arg, evalArgs((jist)jist.cdr(form)));
+        // TODO: Do we return the env here???
+        // Exactly what happens to the environemnt???
     }
-    public static IValue evalSymbol(SymbolValue value) {
+    public static IValue evalSymbol(SymbolValue value, jist env) {
         if(value.getName().equals("*") || value.getName().equals("+") ||
            value.getName().equals("-") || value.getName().equals("/") ||
            value.getName().equals("def") || value.getName().equals("println") ||
            value.getName().equals("if") || value.getName().equals("=")) {
             return value;
         }
-        return envLookup(globalEnv, value);
+        return envLookup(env, value);
     }
-    public static IValue eval(IValue value) {
+    public static IValue eval(IValue value, jist env) {
         if(value == null) return null;
         switch (value.getType()) {
-        case Symbol: return evalSymbol((SymbolValue)value);
+        case Symbol: return evalSymbol((SymbolValue)value, env);
         case Number:
         case Bool: return value;
         case List: return apply((jist)value);
+        case Lambda: return value;
         default: return null;
         }
     }
@@ -238,9 +263,9 @@ public class Eval {
         {
             return ((BoolValue)value).getValue();
         }
-        if(value.getType() == ValueType.List)
+        if(value == null)
         {
-            return !((jist)value).isEmpty();
+            return false;
         }
         return true;
          

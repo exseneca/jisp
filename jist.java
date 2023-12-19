@@ -32,6 +32,15 @@ public class jist implements IValue {
     public static IValue cdr(jist a) {
         return a.rest;
     }
+    public static IValue cadr(jist a) {
+        return car((jist)cdr(a));
+    }
+    public static IValue cddr(jist a) {
+        return cdr((jist)cdr(a));
+    }
+    public static IValue caddr(jist a) {
+        return car((jist)cddr(a));
+    }
     public ValueType getType() {
         return ValueType.List;
     }
