@@ -74,6 +74,12 @@ public class Eval {
         if(names.isEmpty()) {
             return env;
         }
+        System.out.println("Add names and values to env names: ");
+        names.print();
+        System.out.print("\n values: ");
+        values.print();
+        System.out.print("\n");
+        
         return addToEnv(addNamesAndValuesToEnv((jist)jist.cdr(names), (jist)jist.cdr(values), env),
                         (SymbolValue)jist.car(names),
                         jist.car(values));
@@ -84,7 +90,8 @@ public class Eval {
             System.out.println("Unequal args!!");
             return null;
         }
-        jist applicationEnv = addNamesAndValuesToEnv(fun.params(), args, env);
+        jist evalledArgs = (jist)evalArgs(args, env);
+        jist applicationEnv = addNamesAndValuesToEnv(fun.params(), evalledArgs, env);
         return eval(fun.body(), applicationEnv);
     }
     // TODO: This case statement is a bit messy. Can we seperate
@@ -125,7 +132,10 @@ public class Eval {
                 System.out.println("Equal takes two args!!");
                 return null;
             }
-            return applyEqual(evalArgs(args, env));
+            System.out.println("about to apply =");
+            IValue evalledArgs = evalArgs(args, env);
+            evalledArgs.print();
+            return applyEqual((jist)evalledArgs);
         }
         else if (funName.equals("def")) {
             
@@ -282,6 +292,12 @@ public class Eval {
             return null;
         }
         IValue lookup = envLookup(env,value);
+        
+        System.out.println("Found symbol");
+        lookup.print();
+        System.out.println("\n");
+        env.print();
+        System.out.println("\n");
         if(lookup == null) {
             System.out.println("Couldn't find symbol");
             value.print();
@@ -289,7 +305,10 @@ public class Eval {
         return lookup;
     }
     public static IValue eval(IValue value, jist env) {
-        System.out.println("Stuck in eval");
+        System.out.println("about to eval");
+        value.print();
+        System.out.println(value.getType());
+        System.out.println("\n");
         if(value == null) return null;
         switch (value.getType()) {
         case Symbol: return evalSymbol((SymbolValue)value, env);
