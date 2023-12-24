@@ -1,28 +1,6 @@
 import java.util.List;
 import java.util.ArrayList;
 
-// TODO: values should return in the repl
-// TODO: add function definition
-
-// TODO: Add boolean type
-// TODO: Add integer?
-// TODO: Add null?
-
-// TODO: Add support for pairs.
-
-// TODO: Add support for greater than and equals.
-// TODO: Add support for environments.
-// TODO: Add support for defining functions and values.
-// TODO: Add support for lambda functions.
-// TODO: Add support for if
-// TODO: Add support for cond.
-// TODO: Add support for let
-// TODO: Add support for case
-// TODO: Add support for and
-// TODO: Add support for begin.
-// TODO: Add support for map
-// TODO: Add support for reduce
-
 public class Eval {
     public static jist globalEnv = new jist(null);
     // for now env is just a list
