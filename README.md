@@ -31,7 +31,6 @@ At the moment very limited syntax is available.
 - /
 - =
 
-
 ## TODO
 - Add strings
 - Add support for comparison operators
